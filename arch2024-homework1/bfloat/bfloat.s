@@ -1,7 +1,8 @@
 .data
     # initialize the data section with the number to be converted
     # default convertion from float to bfloat16 (direction == 0)
-    num:	.word 0x40800000
+    nums:	.word 0x3f800000, 0x3fa00000, 0x40800000
+    numsSize:	.word 3
     direction:	.word 0
     mask1:	.word 0x7fffffff
     mask2:	.word 0x7f800001
@@ -9,9 +10,13 @@
 
 .text
     # Begin the main code in the text section
-    lw t1, num		# load the given number into register t1
-    lw t2, direction	# load the given direction into register t2
+    la a0, nums		# load the nums array address to register a0
+    lw a1, numsSize	# load the nums array size to register a1
+    addi a2, x0, 0	# keep the element index in register a2
 
+loop:
+    lw t1, 0(a0)	# load the nums[i] into register t1
+    lw t2, direction	# load the given direction into register t2
     # determine the conversion type
     bne t2, x0, bf16_to_fp32
 
@@ -41,5 +46,8 @@ bf16_to_fp32:
 
 out:
     # result hold in register t6
-    nop		# No operation, acts as a placeholder
+    addi a2, a2, 1	# increase the loop index
+    addi a0, a0, 4	# get the next nums[i] address
+    blt a2, a1, loop	# continue the next conversion
+    nop			# No operation, acts as a placeholder
 
