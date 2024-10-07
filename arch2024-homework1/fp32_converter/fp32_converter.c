@@ -6,7 +6,7 @@ void *fp32_convert(uint32_t i) {
     uint32_t tmp;
     int step;
 
-    printf("\n%u ", i & 0x80000000);
+    printf("\n%u ", (i & 0x80000000) >> 31);
     tmp = i >> 23;
     for (step = 7; step >= 0; step--)
         printf("%u", (tmp & (1 << step)) >> step);
