@@ -13,33 +13,32 @@
     la a0, nums		# load the nums array address to register a0
     lw a1, numsSize	# load the nums array size to register a1
     addi a2, x0, 0	# keep the element index in register a2
+    lw s0, direction	# load the given direction into register s0
 
 loop:
     lw t1, 0(a0)	# load the nums[i] into register t1
-    lw t2, direction	# load the given direction into register t2
     # determine the conversion type
-    bne t2, x0, bf16_to_fp32
+    bne s0, x0, bf16_to_fp32
 
 fp32_to_bf16:
-    addi t2, t1, 0	# t2 = t1
-    lw t3, mask1	# load mask1 into register t3
-    lw t4, mask2	# load mask2 into register t4
-    and t5, t2, t3	# t5 = t2 & t3
-    srli t6, t2, 0x10	# extract the first 16 bits
-    bge t5, t4, quiet	# jump to quiet for special case NaN
+    lw t2, mask1	# load mask1 into register t2
+    lw t3, mask2	# load mask2 into register t3
+    and t4, t1, t2	# t4 = t1 & t2
+    srli t5, t1, 0x10	# extract the first 16 bits
+    bge t4, t3, quiet	# jump to quiet for special case NaN
 
     # Rounding related
-    andi t6, t6, 1	# examine whether the 16th bit is odd
-    lw t5 large_num
-    add t6, t6, t5
-    add t6, t6, t2
+    andi t5, t5, 1	# examine whether the 16th bit is odd
+    lw t4 large_num
+    add t5, t5, t4
+    add t5, t5, t1
 
     # convert to 2-byte
-    srli t6 t6 0x10
+    srli t5 t5 0x10
     j out
 
 quiet:
-    ori t6, t6, 64
+    ori t5, t5, 64
     j out
 
 bf16_to_fp32:
