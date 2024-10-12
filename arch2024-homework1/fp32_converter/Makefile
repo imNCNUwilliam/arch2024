@@ -15,6 +15,6 @@ pass = $(PRINTF) "$(PASS_COLOR)$1 Passed [-]$(NO_COLOR)\n"
 
 check: all
 #	$(RM) out || true > /dev/null
-#	./$(TARGET) m1.txt out
+	./$(TARGET)
 #	cat out
 
