@@ -4,7 +4,7 @@
     nums:	.word 0x3f800000, 0x3fa00000, 0x40800000
     nums_bf:	.word 0x3f80, 0x3fa0, 0x4080
     numsSize:	.word 3
-    direction:	.word 1
+    direction:	.word 0
     mask1:	.word 0x7fffffff
     mask2:	.word 0x7f800001
     large_num:	.word 0x7fff
@@ -14,6 +14,7 @@
     lw s0, direction		# load the given direction into register s0
     la a0, nums			# load the nums array address to register a0
     lw a1, numsSize		# load the array size to register a1
+reset:
     addi a2, x0, 0		# keep the element index in register a2
     beq s0, x0, loop		# determine whether to switch the conversion direction
     la a0, nums_bf		# load the nums_bf array address to register a0
@@ -53,5 +54,11 @@ out:
     addi a2, a2, 1		# increase the loop index
     addi a0, a0, 4		# get the address of next array element
     blt a2, a1, loop		# determine whether to continue the next conversion
+    bne s0, x0, end		# determine whether to end the conversion tests
+
+    # switch the conversion direction and do the conversion test
+    addi s0, s0, 1
+    j reset
+end:
     nop				# No operation, acts as a placeholder
 
