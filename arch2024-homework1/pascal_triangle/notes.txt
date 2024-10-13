@@ -1,0 +1,57 @@
+one bit		-> 0, 1
+two bits	-> 00, 11
+three bits	-> 000, 111
+four bits	-> 0000, 1111
+five bits	-> 00000, 11111
+
+Depict with 5-bit scenario.
+event 0: 
+00000
+
+event 1: 
+00001, 
+ 00010, 
+  00100, 
+   01000, 
+    10000
+
+event 2: 
+00011, 
+ 00110, 01010, 10010,
+  00101, 01001, 10001, 
+   01100, 10100, 11000
+
+event 3: 
+00111, 
+ 01110, 10110, 
+  01101, 10101, 
+   01011, 10011, 
+    11001,
+     11010, 
+      11100
+
+event 4: 
+01111, 
+ 11110, 
+  11101, 
+   11011, 
+    10111
+
+event 5: 
+11111
+
+Split with two fields, for event i, 
+    Field 1: `n - i` bits from MSB, and 
+    Field 2: `i` bits to LSB.
+
+Special cases:
+    event 0, event n both have only one outcome.
+Normal cases:
+    For each event, split the enumeration with the two Fields.
+    Initialization: Fill up Field 2 with all-one bits. ==> only one outcome exists
+    Enumeration: 
+        while (Field 2):
+            Field 2 --
+            set Field 1 first 0 bit from LSB to 1
+            Enumerate Field 1
+

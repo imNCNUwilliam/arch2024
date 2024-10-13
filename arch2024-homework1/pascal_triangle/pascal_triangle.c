@@ -27,8 +27,9 @@ void pascal_triangle(int n) {
         printf("Support up to 31 only!\n");
         exit(-1);
     }
-    printf("iterate from %x(%d) to %x(%d)\n", outcome, outcome, max, max);
+    printf("enumerate from %x(%d) to %x(%d)\n", outcome, outcome, max, max);
 
+    // Prepare outcome counters
     counter = (unsigned int *)malloc(sizeof(unsigned int) * (n + 1));
     if (counter == NULL) {
         fprintf(stderr, "No memory!\n");
@@ -37,6 +38,7 @@ void pascal_triangle(int n) {
     for (i = 0; i <= n; i++)
         counter[i] = 0;
 
+    // start enumeration and update the corresponding outcome counters
     while (outcome <= max) {
         counter[my_popcount(outcome)]++;
         outcome++;
