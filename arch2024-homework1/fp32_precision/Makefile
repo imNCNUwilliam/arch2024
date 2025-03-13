@@ -19,6 +19,9 @@ pass = $(PRINTF) "$(PASS_COLOR)$1 Passed [-]$(NO_COLOR)\n"
 check: all
 #	$(RM) out || true > /dev/null
 	./$(TARGET1)
-	./$(TARGET2)
+	./$(TARGET2) 10000
+	./$(TARGET2) 20000
+	./$(TARGET2) 25000
+#	bash test.sh
 #	cat out
 

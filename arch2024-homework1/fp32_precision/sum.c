@@ -1,16 +1,45 @@
 #include <stdio.h>
+#include <stdlib.h>
 typedef unsigned int uint32_t;
 
-int eval_bias(int num) {
+int bias_eval_2(int num) {
+    int sum = 0;
+    int remaining;
+    int bias = 0;
+    char pos;
+
+    for (int i = 0; i < num; i++) {
+        sum += i + 1;
+        /* ------------------_
+         * | pos  | 32 - pos | 
+         * -------------------
+         * | 0..0 | 1........| 
+         * ------------------- */
+        pos = __builtin_clz(sum);
+
+        /* Only int value greater than 2 ^ 24 may cause rounding issue, 
+         * and the most significant 23 bits needs to be preserved. 
+         * That is, the least significant (32 - pos - 24) bits will be 
+         * the rounding errors. I use its MSB as rounding determination. */
+        remaining = pos > 7 ? 0 : sum & ((1 << (8 - pos)) - 1);
+        remaining = remaining & (1 << (7 - pos)) ? remaining - (1 << (8 - pos)) : remaining; 
+        bias += remaining;
+//        printf("Sum: %d | pos: %d | remaining: %d\n", sum, pos, remaining);
+    }
+//    printf("Sum: %d | bias: %d\n", sum, bias);
+    return bias;
+}
+
+int bias_eval(int num) {
     float fsum = 0.0f;
     union {
         float f;
         uint32_t i;
     } u;
-    uint32_t isum = 0;
-    uint32_t bias = 0;
-    uint32_t exponent;
-    uint32_t mantissa;
+    int isum = 0;
+    int bias = 0;
+    int exponent;
+    int mantissa;
 
     for (int i = 0; i < num; i++) {
         fsum += i + 1;
@@ -41,17 +70,20 @@ float kahan_sum(int num) {
 float sum(int num) {
     float sum = 0.0f;
     for (int i = 0; i < num; i++)
-        sum += i;
+        sum += i + 1;
     return sum;
 }
 
-int main() {
-    int num = 10000;
+int main(int argc, char *argv[]) {
+    int num = atoi(argv[1]);
+//    for (int i = 1; i <= 10; i++)
+//        printf("%d: clz(): %d\n", i, __builtin_clz(i));
 
-    printf("Sum: %f | Kahan Sum: %f | Bias Evaluation: %d\n", \
+    printf("Sum: %f | Kahan Sum: %f | Bias Evaluation: %d | Bias Evaluation 2: %d\n", \
             sum(num), \
             kahan_sum(num), \
-            eval_bias(num));
+            bias_eval(num), \
+            bias_eval_2(num));
     return 0;
 }
 
