@@ -2,6 +2,40 @@
 #include <stdlib.h>
 typedef unsigned int uint32_t;
 
+int round_half_even(int val) {
+    int remaining;
+    char pos;
+    int guard_bit, round_bit, sticky_bit;
+
+    /* -------------------
+     * | pos  | 32 - pos |
+     * -------------------
+     * | 0..0 | 1........|
+     * ------------------- */
+    pos = __builtin_clz(val);
+
+    if (pos > 7)
+        return 0;
+
+    /* Only int value greater than 2 ^ 24 may cause rounding issue, 
+     * and the most significant 24 bits needs to be preserved. 
+     * That is, the least significant (32 - pos - 24) bits will be 
+     * the rounding errors. Perform `round nearest half` implementation. */
+    guard_bit = (val >> (8 - pos)) & 1;
+    round_bit = (val >> (7 - pos)) & 1;
+    sticky_bit = pos == 7 ? -1 : (val & ((1 << (7 - pos)) - 1));
+    sticky_bit = sticky_bit > 0 ? 1 : sticky_bit;
+
+    remaining = val & ((1 << (8 - pos)) - 1);
+    if (round_bit & sticky_bit > 0)
+        remaining = remaining - (1 << (8 - pos));
+    if (guard_bit & round_bit & sticky_bit <= 0)
+        remaining = remaining - (1 << (8 - pos));
+//    printf("Value: %x | remaining: %d | pos: %d | %d | %d | %d\n", val, remaining, pos, guard_bit, round_bit, sticky_bit);
+
+    return remaining;
+}
+
 int myround(int val) {
     int remaining;
     char pos;
@@ -33,7 +67,8 @@ int err_evaluation(int num) {
 
     for (int i = 0; i < num; i++) {
         sum += i + 1;
-        err += myround(sum);
+//        err += myround(sum);
+        err += round_half_even(sum);
     }
 //    printf("Sum: %d | Error: %d\n", sum, err);
     return err;
