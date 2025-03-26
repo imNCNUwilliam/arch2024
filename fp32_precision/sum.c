@@ -63,15 +63,14 @@ int myround(int val) {
 
 int err_evaluation(int num) {
     int sum = 0;
-    int err = 0;
 
     for (int i = 0; i < num; i++) {
         sum += i + 1;
-//        err += myround(sum);
-        err += round_half_even(sum);
+//        sum -= myround(sum);
+        sum -= round_half_even(sum);
     }
-//    printf("Sum: %d | Error: %d\n", sum, err);
-    return err;
+//    printf("Sum: %d | Error: %d\n", sum, sum - ((1 + num) * num / 2));
+    return sum - ((1 + num) * num / 2);
 }
 
 int err_observation(int num) {
